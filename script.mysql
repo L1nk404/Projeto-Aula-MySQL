@@ -1,0 +1,59 @@
+CREATE DATABASE IF NOT EXISTS clinica_db; -- Cria da database se não existe
+
+USE clinica_db;
+
+CREATE TABLE Especialidades (
+    id_especialidade    INT PRIMARY KEY AUTO_INCREMENT,
+    nome                VARCHAR(50) NOT NULL,
+    descricao           VARCHAR(500)
+    
+);
+
+CREATE TABLE Pacientes (
+    id_paciente         INT PRIMARY KEY AUTO_INCREMENT,
+    nome                VARCHAR(9) NOT NULL,
+    data_nasc           DATE NOT NULL,  -- YYYY-MM-DD
+    telefone            VARCHAR(16) NOT NULL, -- (XX) 9 XXXX XXXX
+    email               VARCHAR(30) UNIQUE NOT NULL
+);
+
+CREATE TABLE Medicos (
+    id_medico           INT PRIMARY KEY AUTO_INCREMENT,
+    nome                VARCHAR(9) NOT NULL,
+    CRM                 VARCHAR(14) UNIQUE NOT NULL -- CRM/SP 123456
+    id_especialidade    INT UNIQUE NOT NULL, 
+    data_nasc           DATE NOT NULL,  -- YYYY-MM-DD
+    telefone            VARCHAR(16) NOT NULL, -- (XX) 9 XXXX XXXX
+
+    FOREIGN KEY(id_especialidade) REFERENCES Especialidades(id_especialidade) DELETE ON CASCADE
+);
+
+--  `Consultas` (id_consulta, id_paciente, id_medico, data_consulta, hora_inicio, 
+-- hora_fim, status) 
+--  `Prontuarios` (id_prontuario, id_consulta, anamnese, diagnostico, prescricao, 
+-- data_registro)
+
+CREATE TABLE Consultas (
+    id_consultas        INT PRIMARY KEY AUTO_INCREMENT,
+    id_paciente         INT NOT NULL, 
+    id_medico           INT NOT NULL,
+    data_consulta       DATE NOT NULL, -- YYYY-MM-DD
+    hora_inicio         TIME NOT NULL, -- hh:mm:ss
+    hora_fim            TIME NOT NULL, --hh:mm:ss
+    status_consulta     VARCHAR(30), -- confirmado, cancelado, realizado, paci_ausente             
+
+    CONSTRAINT CHECK_horario_fim_valido CHECK (hora_fim > hora_inicio),
+    CONSTRAINT CHECK_status CHECK (status_consulta IN ('confirmado', 'cancelado', 'realizado', 'paci_ausente')),
+    FOREING KEY(id_paciente) REFERENCES Pacientes(id_paciente),
+    FOREING KEY(id_medico) REFERENCES Medicos(id_medico)
+);
+
+CREATE TABLE Prontuarios (
+    id_prontuario       INT PRIMARY KEY AUTO_INCREMENT,
+    id_consulta         INT NOT NULL,
+    diagnostico         VARCHAR(500) NOT NULL,
+    prescricao          VARCHAR(500),
+    data_registro       DATE NOT NULL,
+
+    FOREIGN KEY(id_consulta) REFERENCES Consultas(id_consulta)
+);
