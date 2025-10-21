@@ -2,16 +2,17 @@ CREATE DATABASE IF NOT EXISTS clinica_db; -- Cria da database se não existe
 
 USE clinica_db;
 
+-- DDL =======================================================
+
 CREATE TABLE Especialidades (
     id_especialidade    INT PRIMARY KEY AUTO_INCREMENT,
     nome                VARCHAR(50) NOT NULL,
-    descricao           VARCHAR(500)
-    
+    descricao           VARCHAR(500)    
 );
 
 CREATE TABLE Pacientes (
     id_paciente         INT PRIMARY KEY AUTO_INCREMENT,
-    nome                VARCHAR(9) NOT NULL,
+    nome                VARCHAR(50) NOT NULL,
     data_nasc           DATE NOT NULL,  -- YYYY-MM-DD
     telefone            VARCHAR(16) NOT NULL, -- (XX) 9 XXXX XXXX
     email               VARCHAR(30) UNIQUE NOT NULL
@@ -19,33 +20,32 @@ CREATE TABLE Pacientes (
 
 CREATE TABLE Medicos (
     id_medico           INT PRIMARY KEY AUTO_INCREMENT,
-    nome                VARCHAR(9) NOT NULL,
-    CRM                 VARCHAR(14) UNIQUE NOT NULL -- CRM/SP 123456
-    id_especialidade    INT UNIQUE NOT NULL, 
+    nome                VARCHAR(50) NOT NULL,
+    CRM                 VARCHAR(14) UNIQUE NOT NULL, -- CRM/SP 123456
+    id_especialidade    INT  NOT NULL, 
     data_nasc           DATE NOT NULL,  -- YYYY-MM-DD
     telefone            VARCHAR(16) NOT NULL, -- (XX) 9 XXXX XXXX
 
-    FOREIGN KEY(id_especialidade) REFERENCES Especialidades(id_especialidade) DELETE ON CASCADE
+    FOREIGN KEY(id_especialidade) REFERENCES Especialidades(id_especialidade) ON DELETE CASCADE
 );
 
---  `Consultas` (id_consulta, id_paciente, id_medico, data_consulta, hora_inicio, 
--- hora_fim, status) 
---  `Prontuarios` (id_prontuario, id_consulta, anamnese, diagnostico, prescricao, 
--- data_registro)
-
 CREATE TABLE Consultas (
-    id_consultas        INT PRIMARY KEY AUTO_INCREMENT,
+    id_consulta         INT PRIMARY KEY AUTO_INCREMENT,
     id_paciente         INT NOT NULL, 
     id_medico           INT NOT NULL,
     data_consulta       DATE NOT NULL, -- YYYY-MM-DD
     hora_inicio         TIME NOT NULL, -- hh:mm:ss
-    hora_fim            TIME NOT NULL, --hh:mm:ss
+    hora_fim            TIME NOT NULL, -- hh:mm:ss
     status_consulta     VARCHAR(30), -- confirmado, cancelado, realizado, paci_ausente             
 
-    CONSTRAINT CHECK_horario_fim_valido CHECK (hora_fim > hora_inicio),
-    CONSTRAINT CHECK_status CHECK (status_consulta IN ('confirmado', 'cancelado', 'realizado', 'paci_ausente')),
-    FOREING KEY(id_paciente) REFERENCES Pacientes(id_paciente),
-    FOREING KEY(id_medico) REFERENCES Medicos(id_medico)
+    -- Checa hora válida com horário de funcionamento da clínica:
+    CONSTRAINT chk_horario_valido CHECK (hora_inicio >= '8:00:00' AND hora_inicio <= '17:00:00'),
+    CONSTRAINT chk_horario_fim_valido CHECK (hora_fim > hora_inicio AND hora_fim <= '18:00:00'),
+
+    CONSTRAINT chk_status CHECK (status_consulta IN ('confirmado', 'cancelado', 'realizado', 'paci_ausente')), -- apenas 4 valores são aceitos
+
+    FOREIGN KEY(id_paciente) REFERENCES Pacientes(id_paciente) ON DELETE CASCADE,
+    FOREIGN KEY(id_medico) REFERENCES Medicos(id_medico) ON DELETE CASCADE
 );
 
 CREATE TABLE Prontuarios (
@@ -55,5 +55,68 @@ CREATE TABLE Prontuarios (
     prescricao          VARCHAR(500),
     data_registro       DATE NOT NULL,
 
-    FOREIGN KEY(id_consulta) REFERENCES Consultas(id_consulta)
+    FOREIGN KEY(id_consulta) REFERENCES Consultas(id_consulta) ON DELETE CASCADE
 );
+
+
+-- DML =============================================================
+
+-- Inserindo especialidades médicas
+INSERT INTO Especialidades 
+    (nome, descricao) 
+VALUES
+    ('Cardiologia', 'Especialidade médica que trata doenças do coração e sistema circulatório'),
+    ('Dermatologia', 'Especialidade médica que trata doenças da pele, cabelos e unhas'),
+    ('Pediatria', 'Especialidade médica dedicada ao cuidado de crianças e adolescentes'),
+    ('Ortopedia', 'Especialidade médica que trata doenças e deformidades do sistema musculoesquelético'),
+    ('Ginecologia', 'Especialidade médica que trata da saúde do sistema reprodutor feminino'),
+    ('Clinico Geral', 'Médico generalista que trata de problemas de saúde diversos');
+
+-- Inserindo pacientes
+INSERT INTO Pacientes 
+    (nome, data_nasc, telefone, email) 
+VALUES
+    ('Maria Silva Santos', '1985-03-15', '(19) 9 8765-4321', 'maria.silva@email.com'),
+    ('João Oliveira Costa', '1990-07-22', '(19) 9 1234-5678', 'joao.costa@email.com'),
+    ('Ana Paula Rodrigues', '1978-11-03', '(19) 9 5555-8888', 'ana.rodrigues@email.com'),
+    ('Carlos Eduardo Lima', '2000-01-30', '(19) 9 9999-1111', 'carlos.lima@email.com'),
+    ('Fernanda Souza Alves', '1995-09-14', '(19) 9 7777-3333', 'fernanda.alves@email.com'),
+    ('Roberto Pereira Gomes', '1982-12-25', '(19) 9 4444-6666', 'roberto.gomes@email.com'),
+    ('Juliana Santos Moraes', '1998-06-18', '(19) 9 2222-9999', 'juliana.moraes@email.com'),
+    ('Pedro Henrique Castro', '1975-04-08', '(19) 9 8888-2222', 'pedro.castro@email.com');
+
+-- Inserindo médicos
+INSERT INTO Medicos 
+    (nome, CRM, id_especialidade, data_nasc, telefone) 
+VALUES
+    ('Dr. Ricardo Mendonça', 'CRM/SP 123456', 1, '1970-08-12', '(19) 9 3333-7777'),
+    ('Dra. Beatriz Ramos', 'CRM/SP 234567', 2, '1980-02-28', '(19) 9 6666-4444'),
+    ('Dr. Marcelo Costa', 'CRM/SP 345678', 3, '1978-05-15', '(19) 9 1111-5555'),
+    ('Dra. Patricia Oliveira', 'CRM/SP 456789', 4, '1985-10-20', '(19) 9 7777-9999'),
+    ('Dra. Camila Santos', 'CRM/SP 567890', 5, '1976-03-03', '(19) 9 5555-2222'),
+    ('Dr. Antonio Ferreira', 'CRM/SP 678901', 6, '1982-11-11', '(19) 9 8888-3333');
+
+-- Inserindo consultas
+INSERT INTO Consultas 
+    (id_paciente, id_medico, data_consulta, hora_inicio, hora_fim, status_consulta) 
+VALUES
+    (1, 1, '2024-01-15', '09:00:00', '09:45:00', 'realizado'),
+    (2, 2, '2024-01-15', '10:00:00', '10:30:00', 'realizado'),
+    (3, 3, '2024-01-16', '08:30:00', '09:15:00', 'realizado'),
+    (4, 4, '2024-01-16', '14:00:00', '14:45:00', 'cancelado'),
+    (5, 5, '2024-01-17', '11:00:00', '11:40:00', 'realizado'),
+    (6, 6, '2024-01-17', '15:30:00', '16:15:00', 'paci_ausente'),
+    (1, 1, '2024-01-18', '13:00:00', '13:50:00', 'confirmado'),
+    (7, 2, '2024-01-18', '16:00:00', '16:45:00', 'confirmado'),
+    (8, 3, '2024-01-19', '09:30:00', '10:20:00', 'confirmado'),
+    (2, 4, '2024-01-19', '14:30:00', '15:15:00', 'confirmado');
+
+-- Inserindo prontuários
+INSERT INTO Prontuarios 
+    (id_consulta, diagnostico, prescricao, data_registro) 
+VALUES
+    (1, 'Hipertensão arterial estágio 1', 'Losartana 50mg 1x ao dia; Orientação dieta hipossódica', '2024-01-15'),
+    (2, 'Dermatite de contato', 'Pomada de corticóide 2x ao dia por 7 dias; Evitar contato com agente causador', '2024-01-15'),
+    (3, 'Resfriado comum', 'Repouso relativo; Hidratação; Sintomáticos para febre se necessário', '2024-01-16'),
+    (5, 'Consulta de rotina - preventivo', 'Solicitado exames: Papanicolau, US transvaginal; Retorno em 30 dias', '2024-01-17'),
+    (7, 'Controle de hipertensão', 'Manter medicação; Aferir PA 2x ao dia; Retorno em 60 dias', '2024-01-18');
