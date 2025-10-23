@@ -1,0 +1,61 @@
+DELIMITER $$
+
+CREATE PROCEDURE Agendar( -- Explicar IN, explicar p no nome
+    IN p_id_paciente      INT,
+    IN p_id_medico        INT,
+    IN p_data_consulta    DATE,
+    IN p_hora_inicio      TIME,
+    IN p_hora_fim         TIME
+)
+BEGIN
+DECLARE conflito_medico INT DEFAULT 0; 
+
+-- verifica data e hora sao validas
+IF (p_data_consulta < CURDATE()
+    OR
+    p_data_consulta = CURDATE() AND p_hora_inicio < ADDTIME(CURTIME(), '01:00:00')
+   ) THEN
+
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Erro: Hora ou data não válidos!';
+
+END IF;
+
+-- Verifica conflito na agenda do medico
+SELECT COUNT(*) INTO conflito_medico -- explicar
+FROM Consultas
+WHERE id_medico = p_id_medico
+    AND data_consulta = p_data_consulta
+    AND status_consulta != 'cancelado' -- Ignora consultas canceladas
+    AND ( 
+        -- Conflito: nova consulta inicia durante uma existente
+        (p_hora_inicio >= hora_inicio AND p_hora_inicio < hora_fim) 
+        OR
+        -- Conflito: nova consulta termina durante uma existente  
+        (p_hora_fim > hora_inicio AND p_hora_fim <= hora_fim) 
+        OR
+        -- Conflito: nova consulta engloba uma existente
+        (p_hora_inicio <= hora_inicio AND p_hora_fim >= hora_fim)
+    );
+
+-- Na ausencia de conflitos:
+IF conflito_medico = 0 THEN
+    INSERT INTO Consultas 
+        (id_paciente, id_medico, data_consulta, hora_inicio, hora_fim, status_consulta)
+    VALUES
+        (p_id_paciente, p_id_medico, p_data_consulta, p_hora_inicio, p_hora_fim, 'confirmado');
+
+    SELECT 'Consulta agendada com sucesso!' AS Mensagem;
+    SELECT * FROM Consultas WHERE 
+        id_paciente=p_id_paciente AND 
+        data_consulta = p_data_consulta AND 
+        hora_inicio = p_hora_inicio;
+
+ELSE -- Se conflito:
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Erro: Médico já possui uma consulta agendada nesse horário';
+END IF;
+
+END $$
+
+DELIMITER ;
