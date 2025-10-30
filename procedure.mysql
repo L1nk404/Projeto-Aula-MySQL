@@ -10,6 +10,9 @@ CREATE PROCEDURE Agendar( -- Explicar IN, explicar p no nome
 BEGIN
 DECLARE conflito_medico INT DEFAULT 0; 
 
+-- Inicia a transação
+START TRANSACTION;
+
 -- verifica data e hora sao validas
 IF (p_data_consulta < CURDATE()
     OR
@@ -20,6 +23,7 @@ IF (p_data_consulta < CURDATE()
     SET MESSAGE_TEXT = 'Erro: Hora ou data não válidos!';
 
 END IF;
+
 
 -- Verifica conflito na agenda do medico
 SELECT COUNT(*) INTO conflito_medico -- explicar
@@ -43,15 +47,19 @@ IF conflito_medico = 0 THEN
     INSERT INTO Consultas 
         (id_paciente, id_medico, data_consulta, hora_inicio, hora_fim, status_consulta)
     VALUES
-        (p_id_paciente, p_id_medico, p_data_consulta, p_hora_inicio, p_hora_fim, 'confirmado');
+        (p_id_paciente, p_id_medico, p_data_consulta, p_hora_inicio, p_hora_fim, 'agendado');
 
+    COMMIT; -- Confirma a transição
+    
     SELECT 'Consulta agendada com sucesso!' AS Mensagem;
     SELECT * FROM Consultas WHERE 
         id_paciente=p_id_paciente AND 
         data_consulta = p_data_consulta AND 
         hora_inicio = p_hora_inicio;
-
+    
 ELSE -- Se conflito:
+    ROLLBACK; -- Cancela as mudanças na transiction
+
     SIGNAL SQLSTATE '45000'
     SET MESSAGE_TEXT = 'Erro: Médico já possui uma consulta agendada nesse horário';
 END IF;

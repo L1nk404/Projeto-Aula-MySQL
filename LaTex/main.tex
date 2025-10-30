@@ -1,0 +1,228 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lipsum} % pacote para geração de texto exemplo
+\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+% \usepackage{hyperref}
+\usepackage[top=3cm, bottom=2cm, left=3cm, right=2cm]{geometry}
+\usepackage{setspace}
+\usepackage{helvet}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{listingsutf8}    % Pacote para UTF-8 em listings
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{wrapfig}
+
+\renewcommand{\familydefault}{\sfdefault} % Ajusta a fonte para Arial (Helvetica)
+
+\renewcommand{\lstlistingname}{Script} % Mudar o nome padrão de "Listing" para "Script"
+% BLocos =================================================
+
+% Define um Alerto Box
+\newtcolorbox{alertbox}{
+    colback=blue!5!white, % Background color
+    colframe=blue!75!black, % Border color
+    fonttitle=\bfseries, % Bold title font
+    title={\Large\textbf{!}}, % Alert symbol
+    title filled, % Ensure symbol has background color
+    arc=0pt, % No rounded corners
+    boxrule=0pt % No border
+}
+
+% MySQL
+\lstdefinelanguage{MySQL}{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{lightgray!20},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    morekeywords={
+        SELECT, FROM, WHERE, INSERT, UPDATE, DELETE, CREATE, TABLE, DATABASE,
+        ALTER, DROP, JOIN, LEFT, RIGHT, INNER, OUTER, ON, AND, OR, NOT,
+        LIKE, BETWEEN, IN, IS, NULL, ORDER, BY, GROUP, HAVING, LIMIT,
+        VALUES, SET, INTO, PRIMARY, KEY, FOREIGN, REFERENCES, UNIQUE,
+        INDEX, AUTO_INCREMENT, DEFAULT, CONSTRAINT, ASC, DESC, DISTINCT,
+        COUNT, SUM, AVG, MIN, MAX, AS, CASE, WHEN, THEN, ELSE, END,
+        UNION, ALL, EXISTS, ANY, SOME, IF, EXISTS, VARCHAR, INT, TEXT,
+        DATE, DATETIME, TIMESTAMP, BOOLEAN, DECIMAL, FLOAT, DOUBLE,
+        CHECK, CASCADE, CURDATE, TIME, IN, ADD
+    },
+    sensitive=true,
+    morecomment=[l]{--},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]"
+}
+
+% Define a new environment for "objetivo"
+\newenvironment{objetivo}{
+    \begin{center}
+        \bfseries\large
+        Objetivo
+    \end{center}
+    \vspace{1em}
+    \itshape
+}{}
+
+% Configuração das páginas
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+
+% Configuração do espaçamento
+\onehalfspacing
+% Breakline
+\newcommand{\mybreak}{\\[0.2cm]}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ===================== DCOUMENTO COMEÇA AQUI ===============================
+
+
+\begin{document}
+
+
+% Capa
+\begin{titlepage}
+    \centering
+    \begin{figure}[H]
+        \centering
+        \includegraphics{logoUNIP.jpg}
+    \end{figure}
+    \vspace{1.5cm}
+    \vspace{3cm}
+    {\Huge \textbf{Banco de Dados} \par}
+    \vspace{1cm}
+    {\Large Clinica\_db - Um banco de dados para gerenciamento de consultas\par}
+    \vfill
+    {\Large Campinas - Swift \par}
+    {\Large 2025 \par}
+\end{titlepage}
+
+% Folha de rosto
+\begin{titlepage}
+    \centering
+    {\Large Universidade Paulista \par}
+    \vspace{1.5cm}
+    % {\Large Nome do Autor \par}
+    {\large Gabriel H. Morais, Leonardo da S. Marques, \\Pedro O. Nogueira, Pedro S. Souza , Ruan W. Silva \par}
+
+    \vspace{3cm}
+    {\Huge \textbf{Banco de Dados} \par}
+    \vspace{1cm}
+    {\Large Clinica\_db - Um banco de dados para gerenciamento de consultas \par}
+    \vfill
+    {\large Trabalho apresentado ao Curso de Ciência da Computação da Universidade Paulista para a matéria de Banco de Dados.\par}
+    \vspace{0.5cm}
+    {\large Orientador: Prof. Rafael Colle \par}
+    \vfill
+    {\Large Campinas - Swift \par}
+    {\Large 2025 \par}
+\end{titlepage}
+
+% Resumo
+\begin{objetivo}
+    \begin{center}
+        \textbf{Contexto}\\
+            Uma clínica médica de porte médio, que atualmente gerencia seus processos de forma manual (fichas em papel, agendas físicas), busca modernizar suas operações para aumentar a eficiência, reduzir erros e oferecer um melhor serviço aos pacientes.\\ 
+            A clínica necessita de uma solução digital robusta para centralizar informações de pacientes, médicos, especialidades, consultas e prontuários. 
+    \end{center}
+    O objetivo é projetar, implementar e documentar um banco de dados relacional completo para suportar as operações da clínica médica. Com o uso de conceitos de modelagem e administração de banco de dados usando \textit{SGBD\footnote{SGBD é o nome dado para qualquer software que controla e gerencia dados de um banco de dados por meio de uma interface gráfica\cite{trybe}} MySQL}, o sistema deve ser capaz de gerenciar o cadastro de pacientes e médicos, o agendamento de consultas, o registro de prontuários e fornecer relatórios básicos, garantindo a integridade, a consistência e o desempenho dos dados.
+
+    \vspace{0.5cm}
+    \noindent \textbf{Palavras-chave:} \textit{Data-Base}, \textit{SGBD}, \textit{MySQL}.
+\end{objetivo}
+
+\newpage
+% Sumário
+\tableofcontents
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Corpo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Introdução
+\section{Introdução}
+
+O projeto será feito usando a linguagem MySQL em um servidor hospedado localmente, dessa forma, o acesso remoto ao banco de dados não é possível.
+
+O banco de dados que chamaremos de \texttt{clinica\_db} é composto por cinco tabelas, como representado abaixo:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{db_conceitual.png}
+    \caption{Esquema conceitual do banco \texttt{clinica\_db}. O marcador \textbf{NN} denota atributos com restrição de valor obrigatório (\textit{NOT NULL}).}
+    \label{fig:conceitual}
+\end{figure}
+
+Ao longo deste documento, apresentaremos o processo de criação, manipulação e desenvolvimento de mecanismos que garantam o bom funcionamento do sistema.
+
+\begin{alertbox}
+\begin{center}
+\textbf{Nota}    
+\end{center}
+Apresentaremos aqui apenas partes do código que merecem uma atenção especial, para visualizar o código completo, acesse o repositório no GitHub: https://github.com/L1nk404/Projeto-Aula-MySQL
+\end{alertbox}
+
+\newpage
+\section{Desenvolvimento}
+% DDL ==========================================================================
+\subsection{Estrutura do Banco de Dados (DDL)}
+\input{Text/DDL}
+
+% DML ==========================================================================
+\newpage
+\section{Manipulação de Dados (DML)}
+\input{Text/DML}
+
+% Procedimentos e Funções ======================================================
+\newpage
+\section{Procedimentos e Funções}
+\input{Text/Proc_Func}
+
+
+
+
+
+\newpage
+\newpage
+\section{Apêndice}\label{sec:Apendice}
+\input{Text/Apendice}
+
+\newpage
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{Referências}
+    \bibitem{trybe} MARTINS, F. \textbf{SGBD: o que é, como funciona a arquitetura e 5 exemplos}!  Trybe, 2022.
+    \bibitem{TRIGGER_PROC} \textbf{Triggers em Banco de Dados: Entenda em Detalhes}. Skills Tecnologias, 2024.
+    \bibitem{MySQL_DATE} ORACLE. \textbf{MySQL Documentation} - 13.2.1 Date and Time Data Type Syntax. MySQL, 2025.
+    \bibitem{delete_cascade} REIS, F. \textbf{ON DELETE CASCADE e Opções de Chave Estrangeira no MySQL}. Bóson Treinamentos em Ciência da Tecnologia, 2018.
+    \bibitem{Procedure} MONUTI, D. \textbf{O que é uma Procedure em SQL? E como criar Procedure no SQL} Hashtag Treinamentos. 
+    \bibitem{Delimiter} GAIKWAD, T. \textbf{MySQL Delimiter – A Complete Guide}. MySQL Code, 2022
+    \bibitem{TRANSACTION} GeeksforGeeks \textbf{MySQL Transaction}. Geeks for Geeks, 2025
+    \bibitem{MySQL_45000} ORACLE. \textbf{MySQL Documentation} - 15.6.7.5 SIGNAL Statement. MySQL, 2025.
+    \bibitem{MySQL_deterministic} ORACLE. \textbf{MySQL Documentation} - 10.2.1.20 Function Call Optimization. MySQL, 2025.
+    \bibitem{timestamp} W3RESOURCE - \textbf{MySQL TIMESTAMPDIFF() function}. w3resource, 2024.    
+    % \bibitem{w3schools} \textbf{MySQL Tutorial}. w3schools.com
+    % \bibitem{MySQL_dod} \textbf{MySQL Documentation}. MySQL.com/doc
+    % \bibitem{ref2} \textbf{TAXA METABÓLICA BASAL: O QUE É E COMO PODE SER CALCULADA}. Essential Nutrition, 2022
+    % \bibitem{ref3}
+    % BELCIT, Ivan. \textbf{O que é Cross-Site Scripting (XSS)?}. avast.com, 2020.
+\end{thebibliography}
+\end{document}
+
+https://app.diagrams.net app de fluxogramas
